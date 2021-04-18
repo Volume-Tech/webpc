@@ -1,0 +1,22 @@
+{
+  "name": "webpc",
+  "version": "1.0.0",
+  "description": "A command line utility tool to convert image files to webp format",
+  "main": "bin/index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hvg2416/webpc.git"
+  },
+  "author": "Harsh Vardhan Gautam",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hvg2416/webpc/issues"
+  },
+  "homepage": "https://github.com/hvg2416/webpc#readme",
+  "dependencies": {
+    "@types/node": "^14.14.41"
+  }
+}
