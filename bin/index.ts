@@ -6,11 +6,11 @@ const path = require('path');
 const fs = require('fs');
 
 const ROOT = `${__dirname.replace("/bin", "")}`;
-let pathToLib = `libwebp-0.4.1-mac-10.8/bin`;
+let pathToLib = `libwebp/macos`;
 
 let args = minimist(process.argv.slice(2));
 
-if(!args['i']){
+if (!args['i']) {
     console.error('\nERROR: Please mention input folder\n');
     process.exit();
 }
@@ -30,15 +30,15 @@ exec(`ls`, async (error, stdout, stderr) => {
 
     fs.mkdir(`${pathToOutput}/webpc-output`, null, (err) => {
 
-        if(err){
+        if (err) {
             return console.log('Error in creating new directory for output');
         }
 
         pathToOutput = `${pathToOutput}/webpc-output`;
 
-        for(let i = 0; i < listOfFileNames.length; i++){
+        for (let i = 0; i < listOfFileNames.length; i++) {
             let fileName = listOfFileNames[i];
-            if(fileName){
+            if (fileName) {
 
                 fileName = fileName.replace(/\s/g, "\\ ");
                 fileName = fileName.replace(/[()]/g, "\\(");
@@ -51,7 +51,7 @@ exec(`ls`, async (error, stdout, stderr) => {
 
                 exec(`./cwebp -q 80 ${pathToInput}/${fileName} -o ${pathToOutput}/${outputFileName}.webp`, (error, stdout, stderr) => {
                     // console.log(stderr);
-                    if(error){
+                    if (error) {
                         console.log(`Error: ${error}`);
                     }
                 });
