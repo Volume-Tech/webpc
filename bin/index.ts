@@ -6,7 +6,24 @@ const path = require('path');
 const fs = require('fs');
 
 const ROOT = `${__dirname.replace("/bin", "")}`;
-let pathToLib = `libwebp/macos`;
+let pathToLib = 'libwebp';
+
+const platform = process.platform;
+
+switch (platform) {
+    case 'darwin':
+        pathToLib += '/macos'
+        break;
+    case 'win32':
+        pathToLib += '/windows'
+        break;
+    case 'linux':
+        pathToLib += '/linux'
+        break;
+    default:
+        pathToLib += '/macos'
+        break;
+}
 
 let args = minimist(process.argv.slice(2));
 
@@ -50,7 +67,7 @@ exec(`ls`, async (error, stdout, stderr) => {
                 outputFileName = tempArr.join(".");
 
                 exec(`./cwebp -q 80 ${pathToInput}/${fileName} -o ${pathToOutput}/${outputFileName}.webp`, (error, stdout, stderr) => {
-                    // console.log(stderr);
+                    console.log(stderr);
                     if (error) {
                         console.log(`Error: ${error}`);
                     }
