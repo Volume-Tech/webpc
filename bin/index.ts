@@ -3,6 +3,7 @@
 const minimist = require('minimist');
 const { exec } = require('child_process');
 const path = require('path');
+const fs = require('fs');
 
 const ROOT = `${__dirname.replace("/bin", "")}`;
 let pathToLib = `libwebp-0.4.1-mac-10.8/bin`;
@@ -14,31 +15,48 @@ if(!args['i']){
     process.exit();
 }
 
-let pathToOutput = args['o'] || `${ROOT}/webp/images`;
+let pathToOutput = args['o'] || args['i'];
 let pathToInput = args['i'];
 
 process.chdir(`${pathToInput}`);
 
 let listOfFileNames = [];
 
-exec(`ls`, (error, stdout, stderr) => {
+exec(`ls`, async (error, stdout, stderr) => {
 
     let output = stdout;
     listOfFileNames = output.split('\n');
     process.chdir(`${ROOT}/${pathToLib}`);
 
-    for(let i = 0; i < listOfFileNames.length; i++){
-        let fileName = listOfFileNames[i];
-        fileName = fileName.replace(" ", "\\ ");
-        fileName = fileName.replace("(", "\\(");
-        fileName = fileName.replace(")", "\\)");
-        if(fileName){
-            exec(`./cwebp -q 80 ${pathToInput}/${fileName} -o ${pathToOutput}/${fileName.split('.')[0]}.webp`, (error, stdout, stderr) => {
-                if(error){
-                    console.log(`Error: ${error}`);
-                }
-            });
+    fs.mkdir(`${pathToOutput}/webpc-output`, null, (err) => {
+
+        if(err){
+            return console.log('Error in creating new directory for output');
         }
-    }
+
+        pathToOutput = `${pathToOutput}/webpc-output`;
+
+        for(let i = 0; i < listOfFileNames.length; i++){
+            let fileName = listOfFileNames[i];
+            if(fileName){
+
+                fileName = fileName.replace(/\s/g, "\\ ");
+                fileName = fileName.replace(/[()]/g, "\\(");
+                fileName = fileName.replace(/[()]/g, "\\)");
+
+                let outputFileName = fileName;
+                let tempArr = outputFileName.split('.');
+                tempArr = tempArr.slice(0, tempArr.length - 1);
+                outputFileName = tempArr.join(".");
+
+                exec(`./cwebp -q 80 ${pathToInput}/${fileName} -o ${pathToOutput}/${outputFileName}.webp`, (error, stdout, stderr) => {
+                    // console.log(stderr);
+                    if(error){
+                        console.log(`Error: ${error}`);
+                    }
+                });
+            }
+        }
+    });
 
 });
