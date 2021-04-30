@@ -5,17 +5,18 @@ const { exec } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 
-const ROOT = `${__dirname.replace("/bin", "")}`;
-let pathToLib = 'libwebp';
-
 const platform = process.platform;
+let ROOT = __dirname;
+let pathToLib = 'libwebp';
 
 switch (platform) {
     case 'darwin':
-        pathToLib += '/macos'
+        pathToLib += '/macos';
+        ROOT = __dirname.replace("/bin", "");
         break;
     case 'win32':
-        pathToLib += '/windows'
+        pathToLib += '\\windows';
+        ROOT = __dirname.replace("\\bin", "");
         break;
     case 'linux':
         pathToLib += '/linux'
@@ -43,7 +44,7 @@ exec(`ls`, async (error, stdout, stderr) => {
 
     let output = stdout;
     listOfFileNames = output.split('\n');
-    process.chdir(`${ROOT}/${pathToLib}`);
+    process.chdir(`${ROOT}\\${pathToLib}`);
 
     fs.mkdir(`${pathToOutput}/webpc-output`, null, (err) => {
 
