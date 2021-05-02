@@ -9,12 +9,14 @@ const platform = process.platform;
 let ROOT = path.dirname(__dirname);
 let pathToLib = 'libwebp';
 
+const OUTPUT_DIR_NAME = 'webpc-output';
+
 switch (platform) {
     case 'darwin':
         pathToLib = path.join(pathToLib, 'macos');
         break;
     case 'win32':
-        pathToLib = path.join(pathToLib, 'windows');
+        pathToLib = path.join(pathToLib, 'windows', 'bin');
         break;
     case 'linux':
         pathToLib = path.join(pathToLib, 'linux');
@@ -39,17 +41,18 @@ process.chdir('/');
 let listOfFileNames = fs.readdirSync(pathToInput);
 
 if (args['o']) {
-    process.chdir(path.parse(pathToOutput).dir);
-    fs.mkdirSync(path.basename(pathToOutput), { recursive: true });
+    process.chdir(pathToOutput);
+    fs.mkdirSync(OUTPUT_DIR_NAME, { recursive: true });
 } else {
     process.chdir(`${pathToInput}`);
-    fs.mkdirSync('webpc-output', { recursive: true });
+    fs.mkdirSync(OUTPUT_DIR_NAME, { recursive: true });
 }
 
 for (let i = 0; i < listOfFileNames.length; i++) {
     let fileName = listOfFileNames[i];
     if (fileName) {
-        exec(`./cwebp -q 80 ${path.join(pathToInput, fileName)} -o ${path.join(pathToOutput, `${fileName}.webp`)}`, {
+        let outputFileName = fileName.split(".")[0];
+        exec(`./cwebp -q 80 "${path.join(pathToInput, fileName)}" -o "${path.join(pathToOutput, 'webpc-output', `${outputFileName}.webp`)}"`, {
             cwd: path.join(ROOT, pathToLib)
         }, (error, stdout, stderr) => {
             console.log(stderr);
