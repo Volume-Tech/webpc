@@ -6,23 +6,21 @@ const path = require('path');
 const fs = require('fs');
 
 const platform = process.platform;
-let ROOT = __dirname;
+let ROOT = path.dirname(__dirname);
 let pathToLib = 'libwebp';
 
 switch (platform) {
     case 'darwin':
-        pathToLib += '/macos';
-        ROOT = __dirname.replace("/bin", "");
+        pathToLib = path.join(pathToLib, 'macos');
         break;
     case 'win32':
-        pathToLib += '\\windows';
-        ROOT = __dirname.replace("\\bin", "");
+        pathToLib = path.join(pathToLib, 'windows');
         break;
     case 'linux':
-        pathToLib += '/linux'
+        pathToLib = path.join(pathToLib, 'linux');
         break;
     default:
-        pathToLib += '/macos'
+        pathToLib = path.join(pathToLib, 'macos');
         break;
 }
 
@@ -36,45 +34,28 @@ if (!args['i']) {
 let pathToOutput = args['o'] || args['i'];
 let pathToInput = args['i'];
 
-process.chdir(`${pathToInput}`);
+process.chdir('/');
 
-let listOfFileNames = [];
+let listOfFileNames = fs.readdirSync(pathToInput);
 
-exec(`ls`, async (error, stdout, stderr) => {
+if (args['o']) {
+    process.chdir(path.parse(pathToOutput).dir);
+    fs.mkdirSync(path.basename(pathToOutput), { recursive: true });
+} else {
+    process.chdir(`${pathToInput}`);
+    fs.mkdirSync('webpc-output', { recursive: true });
+}
 
-    let output = stdout;
-    listOfFileNames = output.split('\n');
-    process.chdir(`${ROOT}\\${pathToLib}`);
-
-    fs.mkdir(`${pathToOutput}/webpc-output`, null, (err) => {
-
-        if (err) {
-            return console.log('Error in creating new directory for output');
-        }
-
-        pathToOutput = `${pathToOutput}/webpc-output`;
-
-        for (let i = 0; i < listOfFileNames.length; i++) {
-            let fileName = listOfFileNames[i];
-            if (fileName) {
-
-                fileName = fileName.replace(/\s/g, "\\ ");
-                fileName = fileName.replace(/[()]/g, "\\(");
-                fileName = fileName.replace(/[()]/g, "\\)");
-
-                let outputFileName = fileName;
-                let tempArr = outputFileName.split('.');
-                tempArr = tempArr.slice(0, tempArr.length - 1);
-                outputFileName = tempArr.join(".");
-
-                exec(`./cwebp -q 80 ${pathToInput}/${fileName} -o ${pathToOutput}/${outputFileName}.webp`, (error, stdout, stderr) => {
-                    console.log(stderr);
-                    if (error) {
-                        console.log(`Error: ${error}`);
-                    }
-                });
+for (let i = 0; i < listOfFileNames.length; i++) {
+    let fileName = listOfFileNames[i];
+    if (fileName) {
+        exec(`./cwebp -q 80 ${path.join(pathToInput, fileName)} -o ${path.join(pathToOutput, `${fileName}.webp`)}`, {
+            cwd: path.join(ROOT, pathToLib)
+        }, (error, stdout, stderr) => {
+            console.log(stderr);
+            if (error) {
+                console.log(error);
             }
-        }
-    });
-
-});
+        });
+    }
+}
